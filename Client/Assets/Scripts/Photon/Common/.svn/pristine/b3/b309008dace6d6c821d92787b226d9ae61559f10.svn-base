@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace RememberPos
+{
+    public class AssetData
+    {
+        public string _accountName;
+        public int _gold = 10;
+        public int[] _blocks;
+        public int[] _boards;
+        public int[] _persons;
+
+        public void SetValues(List<object> list)
+        {
+            if (list.Count != 5)
+            {
+                return;
+            }
+
+            _accountName = (string)list[0]; 
+            _gold = (int)list[1]; 
+            _blocks = ((string)list[2]).UnpackToDataInt();
+            _boards = ((string)list[3]).UnpackToDataInt();
+            _persons = ((string)list[4]).UnpackToDataInt(); 
+        }
+    }
+}

@@ -1,0 +1,1 @@
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\RememberPos\obj\x64\Debug\RememberPos.csproj.CoreCompileInputs.cache

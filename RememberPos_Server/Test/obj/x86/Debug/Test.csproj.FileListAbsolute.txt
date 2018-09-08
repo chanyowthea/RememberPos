@@ -1,0 +1,10 @@
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\obj\x86\Debug\Test.csproj.CoreCompileInputs.cache
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\bin\x86\Debug\Test.exe.config
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\bin\x86\Debug\Test.exe
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\bin\x86\Debug\Test.pdb
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\bin\x86\Debug\EPPlus.dll
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\bin\x86\Debug\Excel.dll
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\bin\x86\Debug\ICSharpCode.SharpZipLib.dll
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\obj\x86\Debug\Test.exe
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\obj\x86\Debug\Test.pdb
+D:\SaveWorks\ProjectRoot\VisualStudio\PhotonLoginAndLobbyDemo\ServerDemo_RememberPos\RememberPos_Server_All\Test\obj\x86\Debug\Test.csprojResolveAssemblyReference.cache

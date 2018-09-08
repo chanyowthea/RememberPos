@@ -1,0 +1,29 @@
+﻿using System.Collections;
+
+public class BaseCell
+{
+    public int _id;
+    public string _name;
+    public string _description;
+    public int _gold;
+}
+
+public class BlockCell : BaseCell
+{
+
+}
+
+public class BlockBoardCell : BaseCell
+{
+
+}
+
+public class PersonCell : BaseCell
+{
+
+}
+
+public class BoardCell : BaseCell
+{
+
+}
