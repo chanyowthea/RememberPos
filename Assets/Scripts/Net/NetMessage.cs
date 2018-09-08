@@ -1,0 +1,36 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+
+// 登录流程0x01
+//public class C_LoginMessage : MessageBase
+//{
+//	public static short _msgId = 0x0101; 
+//	public string _accountName; 
+//}
+
+//public class S_LoginMessage : MessageBase
+//{
+//	public static short _msgId = 0x0102; 
+//	public PlayerData _playerData;
+//}
+
+public class C_EnterLobbyMessage : MessageBase
+{
+	public static short _msgId = 0x0103;
+	public string _accountName;
+}
+
+public class S_EnterLobbyMessage : MessageBase
+{
+	public static short _msgId = 0x0104;
+	//public PlayerData _playerData;
+}
+
+// 通用信息0x02
+public class ErrorMessage : MessageBase
+{
+    public static short _msgId = 0x0201;
+    public string _content;
+}

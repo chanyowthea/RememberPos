@@ -1,0 +1,74 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using MySql.Data.MySqlClient; 
+
+[System.Serializable]
+public class PlayerData
+{
+	// 这里写的所有数据都会储存
+	public int _playerId; 
+//	public int _playerModelId; 
+	public int _boardIdInUse;
+	public string _accountName; 
+	public string _nickName;
+	public int _blockIdInUse; // block board
+
+	public override string ToString()
+	{
+		return string.Format("[PlayerData] _playerId={0}, _boardIdInUse={1}\n", _playerId, _boardIdInUse);
+	}
+
+	public void SetAllValues(object[] objs)
+	{
+		int index = 0; 
+		var fs = GetType().GetFields(); 
+		if (fs.Length != objs.Length)
+		{
+			Debug.LogError(string.Format("数据长度错误！变量个数：{0}, 数据个数：{1}", fs.Length, objs.Length)); 
+			return;
+		}
+		for (int i = 0, max = objs.Length; i < max; i++)
+		{
+			fs[i].SetValue(this, objs[i]); 
+		}
+	}
+
+	public string[] ToColumnNames()
+	{
+		List<string> ss = new List<string>(); 
+		foreach(var f in GetType().GetFields())
+		{
+			ss.Add(f.Name); 
+		}
+		return ss.ToArray(); 
+	}
+
+	public string[] ToClumnTypes()
+	{
+		List<string> ss = new List<string>(); 
+		foreach(var f in GetType().GetFields())
+		{
+			ss.Add(f.FieldType.ToSqlType()); 
+		}
+		return ss.ToArray();  
+	}
+
+	public MySqlParameter[] ToSqlParams()
+	{
+		List<MySqlParameter> ps = new List<MySqlParameter>(); 
+		foreach(var f in GetType().GetFields())
+		{
+			ps.Add(new MySqlParameter("?" + f.Name, f.GetValue(this))); 
+		}
+		return ps.ToArray(); 
+	}
+
+	public MySqlParameter[] ToSqlParamsWithoutID()
+	{
+		List<MySqlParameter> ps = new List<MySqlParameter>(); 
+		ps.AddRange(ToSqlParams());
+		ps.RemoveAt(0);
+		return ps.ToArray(); 
+	}
+}

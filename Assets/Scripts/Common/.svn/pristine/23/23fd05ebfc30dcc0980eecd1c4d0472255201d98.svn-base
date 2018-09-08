@@ -1,0 +1,8 @@
+using ProtoBuf;
+
+[ProtoContract]
+public class _RoomInfo : BaseMessage
+{
+	[ProtoMember(1)]
+	public string _roomName; 
+}

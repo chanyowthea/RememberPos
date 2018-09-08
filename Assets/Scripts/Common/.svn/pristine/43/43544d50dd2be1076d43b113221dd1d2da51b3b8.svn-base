@@ -1,0 +1,79 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using System;
+using MySql.Data.MySqlClient;
+
+public class DataServer
+{
+	public void StartServer()
+	{
+		//NetUtil.Instance.SetDelegate((string msg) =>
+		//{
+		//	LogUtil.Write(msg, LogUtil.RED);
+		//});
+		////开启服务器
+		//NetUtil.Instance.ServerStart();
+	}
+
+	public void StartClient()
+	{
+		////消息处理
+		//NetUtil.Instance.SetDelegate((string msg) => {
+		//	LogUtil.Write(msg, LogUtil.WHITE);
+		//});
+		////连接服务器
+		//NetUtil.Instance.ClientConnnect();
+	}
+
+	public void SendMessage()
+	{
+		NetUtil.Instance.SendMsg(new NetModel { senderIp = SqlAccess.host, content = ""});
+	}
+
+	public void GetPlayerData(string accountName, Action<PlayerData> action)
+	{
+		if (action == null)
+		{
+			return;
+		}
+
+		// 查看数据库是否有对应数据
+		PlayerData data = new PlayerData();
+		SingletonLobby._sql.CreateTable(Player._tableName, data.ToColumnNames(), data.ToClumnTypes());
+		int count = SingletonLobby._sql.GetCount(Player._tableName,
+			new MySqlParameter("?" + SqlUtil.GetVarName(e => data._accountName), accountName));
+		if (count == 0)
+		{
+			Debug.LogError("登录失败！请检查帐号是否存在。");
+			action(null);
+			return;
+		}
+
+		// 看看表中是否是空数据
+		var list = SingletonLobby._sql.ReaderInfo(Player._tableName, data.ToColumnNames(),
+			new MySqlParameter("?" + SqlUtil.GetVarName(e => data._accountName), accountName));
+		if (list.Count == 0)
+		{
+			//Debug.LogError("获取的数据长度为0！");
+			action(null);
+			return;
+		}
+		data.SetAllValues(list[0].ToArray());
+		action(data);
+	}
+
+	public void CreateNewAccount(PlayerData data, Action<bool> action)
+	{
+		if (action == null)
+		{
+			return;
+		}
+
+		Singleton._sql.CreateTable(Player._tableName, data.ToColumnNames(), data.ToClumnTypes());
+		SingletonLobby._sql.UpdateInto(Player._tableName,
+			new MySqlParameter("?" + SqlUtil.GetVarName(e => data._accountName), data._accountName),
+			data.ToSqlParamsWithoutID());
+
+		action(true);
+	}
+}

@@ -1,0 +1,42 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[System.Serializable]
+public class RoomInfo
+{
+	public string _roomName;
+	public string _ipAddress;
+	public bool _isAdd; 
+
+	public void Unpack(string ip, string s)
+	{
+		_ipAddress = ip;
+		string[] ss = s.Split(';');
+		if (ss.Length < 3)
+		{
+			return;
+		}
+		_roomName = ss[1];
+		_isAdd = ss[2] == "1"; 
+	}
+
+	public override bool Equals(object obj)
+	{
+		RoomInfo info = (RoomInfo)obj;
+		if (info == null)
+		{
+			return false;
+		}
+		if (info._ipAddress == _ipAddress && info._roomName == _roomName)
+		{
+			return true;
+		}
+		return false;
+	}
+	public override string ToString()
+	{
+		return string.Format("ip={0}, name={1}", _ipAddress, _roomName);
+	}
+}
+

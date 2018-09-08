@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using ProtoBuf; 
+
+namespace RememberPos
+{
+    [ProtoContract]
+    public class AssetData
+    {
+        [ProtoMember(1)]
+        public string _accountName;
+        [ProtoMember(2)]
+        public int _gold = 10;
+        [ProtoMember(3)]
+        public int[] _blocks;
+        [ProtoMember(4)]
+        public int[] _blockBoards;
+        [ProtoMember(5)]
+        public int[] _boards;
+        [ProtoMember(6)]
+        public int[] _persons;
+
+        public void SetValues(List<object> list)
+        {
+            if (list.Count != 5)
+            {
+                return;
+            }
+
+            _accountName = (string)list[0]; 
+            _gold = (int)list[1];
+            _blocks = ((string)list[2]).UnpackToDataInt();
+            _blockBoards = ((string)list[3]).UnpackToDataInt();
+            _boards = ((string)list[4]).UnpackToDataInt();
+            _persons = ((string)list[5]).UnpackToDataInt(); 
+        }
+    }
+}

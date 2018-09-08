@@ -1,0 +1,22 @@
+﻿using Excel;
+using RememberPos;
+using System.Data;
+using System.IO;
+
+public class ExcelAccess
+{
+    public static string FilePath(string name)
+    {
+        return "Resources/Excels/" + name; 
+    }
+
+    public static DataRowCollection GetCollection(string excelName)
+    {
+        Singleton._log.Info("ExcelAccess file path=" + ExcelAccess.FilePath(excelName)); 
+        FileStream stream = File.Open(ExcelAccess.FilePath(excelName), FileMode.Open, FileAccess.Read, FileShare.Read);
+        IExcelDataReader excelReader = ExcelReaderFactory.CreateBinaryReader(stream); 
+        DataSet result = excelReader.AsDataSet();
+        return result.Tables[0].Rows;
+    }
+}
+

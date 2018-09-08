@@ -1,0 +1,236 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+using MySql.Data.MySqlClient;
+using System.Linq;
+
+public class Player : NetworkBehaviour
+{
+	public static List<Player> _onlinePlayers = new List<Player>();
+	public static Dictionary<NetworkConnection, string> _accountNameDict = new Dictionary<NetworkConnection, string>();
+	public PlayerData _playerData;
+	public const string _tableName = "PlayerData";
+	[SyncVar] public string _accountName;
+	[SyncVar(hook = "OnSetScores")] public int _scores;
+	[SerializeField] TextMesh _nameText;
+	[SerializeField] GameObject _playerCameraObj;
+
+	void Awake()
+	{
+		_onlinePlayers.Add(this);
+	}
+
+	private void OnDestroy()
+	{
+		_onlinePlayers.Remove(this);
+	}
+
+	void Start()
+	{
+		_playerCameraObj.SetActive(false);
+		SingletonLobby._dataServer.GetPlayerData(_accountName, (PlayerData data) =>
+		{
+			_playerData = data;
+			_nameText.text = _playerData._nickName;
+
+			CoroutineUtil.WaitSeconds(() =>
+			{
+				if (isServer && isLocalPlayer)
+				{
+					CmdSetServerPlayerID(_playerData._playerId);
+				}
+
+				CoroutineUtil.WaitSeconds(() =>
+				{
+					bool isMine = Singleton._gameData._serverLocalPlayerId == _playerData._playerId;
+					transform.position = isMine ?
+						Singleton._gameReference._playerPos_Mine.transform.position :
+						Singleton._gameReference._playerPos_Opposite.transform.position;
+					transform.localEulerAngles = isMine ?
+						Singleton._gameReference._playerPos_Mine.transform.localEulerAngles :
+						Singleton._gameReference._playerPos_Opposite.transform.localEulerAngles;
+					_playerCameraObj.SetActive(isLocalPlayer);
+					CreateBoard();
+				}, 0.5f);
+			}, 0.5f);
+		});
+	}
+
+	[Server]
+	void CreateBoard()
+	{
+		GameManager._instance.CreateBoard(_playerData._playerId);
+	}
+
+	[Command]
+	void CmdSetServerPlayerID(int id)
+	{
+		Singleton._gameData._serverLocalPlayerId = id;
+	}
+
+	void Update()
+	{
+		if (!isLocalPlayer)
+		{
+			return;
+		}
+
+		if (!Singleton._gameData._permitInput)
+		{
+			return;
+		}
+
+		if (Input.GetKeyDown(KeyCode.Mouse0))
+		{
+			RaycastHit hit;
+			if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 100f, LayerMask.GetMask("Block")))
+			{
+				// 由于Mask不是NetworkServer Spawn出来的，因此无法传递到服务器
+				var block = hit.transform.GetComponentInParent<Block>();
+				if (block != null)
+				{
+					//Debug.LogError("name=" + block.transform.name); 
+					// 如果开始没有显示，点击之后才将要显示，那么判定是否存在相同的
+					if (!block._isShowModel)
+					{
+						// 如果有相同的，那么消除这个
+						var b = Singleton._blockGenerator.GetBlock(block._itemId);
+						if (b != null)
+						{
+							//							Debug.LogError("Destroy: " + b.name);
+							//							Debug.LogError("Destroy: " + block.name);
+							CmdDestroyBlock(b.gameObject, block.gameObject, _playerData._playerId);
+						}
+						CmdShowModel(block.gameObject);
+					}
+				}
+			}
+		}
+	}
+
+	[Command]
+	void CmdShowModel(GameObject go)
+	{
+		if (go == null)
+		{
+			Debug.LogError("go is empty! ");
+			return;
+		}
+		var block = go.GetComponent<Block>();
+		if (block == null)
+		{
+			Debug.LogError("block is empty! ");
+			return;
+		}
+		block._isShowModel = true;
+		if (Singleton._gameData._useCountMode)
+		{
+			ServerCountPermit(go);
+		}
+		else
+		{
+			ServerCountDown(go);
+		}
+	}
+
+	// 准备显示新的Block
+	[Server]
+	void ServerCountPermit(GameObject go)
+	{
+		if (go == null)
+		{
+			Debug.LogError("go is empty! ");
+			return;
+		}
+		var block = go.GetComponent<Block>();
+		if (block == null)
+		{
+			Debug.LogError("block is empty! ");
+			return;
+		}
+		// 执行这个就会导致Block._showedBlocks这个表添加了这个block
+		block._isShowModel = true;
+
+		// 删除空Block
+		int index = 0; 
+		while (Block._showedBlocks.Count > index)
+		{
+			var b = Block._showedBlocks[index];
+			if(b == null)
+			{
+				Block._showedBlocks.RemoveAt(index);
+			}
+			else
+			{
+				++index; 
+			}
+		}
+
+		if (Block._showedBlocks.Count > Singleton._gameData._maxShowedBlocksCount)
+		{
+			var b = Block._showedBlocks[0]; 
+			b._isShowModel = false;
+		}
+	}
+
+	[Server]
+	void ServerCountDown(GameObject go)
+	{
+		if (go == null)
+		{
+			return;
+		}
+		var block = go.GetComponent<Block>();
+		if (block == null)
+		{
+			return;
+		}
+		CoroutineUtil.WaitSeconds(() =>
+		{
+			// 这里是由于前面被消除了，因此这里是空的
+			if (block != null)
+			{
+				block._isShowModel = false;
+			}
+		}, block._vanishTime);
+	}
+
+	[Command]
+	void CmdDestroyBlock(GameObject b0, GameObject b1, int playerId)
+	{
+		var block0 = b0.GetComponent<Block>();
+		var block1 = b1.GetComponent<Block>();
+		block0.DestroySelf();
+		block1.DestroySelf();
+		// 销毁的这个协程内不允许输入
+		Singleton._gameData._permitInput = false;
+
+		// 增加得分
+		var p = Player._onlinePlayers.Find((Player temp) => temp._playerData._playerId == playerId);
+		if (p != null)
+		{
+			++p._scores;
+		}
+	}
+
+	[Command]
+	void CmdSetAccountName(string s)
+	{
+		_accountName = s;
+	}
+
+	void OnSetScores(int scores)
+	{
+		_scores = scores;
+		var hud = SingletonLobby._uiManager.Get<HUDView>(EView.HUD);
+		if (isLocalPlayer)
+		{
+			hud.myScores = scores;
+		}
+		else
+		{
+			hud.otherScores = scores;
+		}
+	}
+}

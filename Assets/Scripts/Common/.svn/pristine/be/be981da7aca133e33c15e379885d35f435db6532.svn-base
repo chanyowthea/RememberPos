@@ -1,0 +1,82 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Linq.Expressions;
+using System;
+
+public static class SqlUtil
+{
+	public static string Print(this List<List<object>> list)
+	{
+		string s = ""; 
+		for (int i = 0, max = list.Count; i < max; i++)
+		{
+			var l = list[i];
+			string temp = ""; 
+			for (int j = 0, max1 = l.Count; j < max1; j++)
+			{
+				temp += l[j] + (j == max1 - 1 ? "" : ", ");
+			}
+//			Debug.LogError("temp=" + temp); 
+			s += (i == 0 ? "" : "; ") + temp; 
+		}
+		Debug.Log("Print: " + s); 
+		return s; 
+	}
+
+	public static string GetVarName<T>(Expression<Func<string, T>> exp)
+	{
+		return ((MemberExpression)exp.Body).Member.Name;
+	} 
+
+	public static string ToSqlType(this Type t)
+	{
+		if (t.ToString() == "System.Int32")
+		{
+			return "INTEGER";
+		}
+		else if (t.ToString() == "System.String")
+		{
+			return "TEXT";
+		}
+		else if (t.ToString() == "System.Single")
+		{
+			return "REAL";
+		}
+		else if (t.ToString() == "System.Boolean")
+		{
+			return "BIT";
+		}
+		return "TEXT"; 
+	}
+
+	public static string[] GetLocalIPs()
+	{
+		List<string> ss = new List<string>(); 
+		var strHostName = System.Net.Dns.GetHostName();
+		var ipEntry = System.Net.Dns.GetHostEntry(strHostName);
+		var addrs = ipEntry.AddressList;
+		for (int i = 0, length = addrs.Length; i < length; i++)
+		{
+			ss.Add(addrs[i].ToString()); 
+		}
+		return ss.ToArray();
+	}
+
+	public static string GetLocalIP()
+	{
+		List<string> ss = new List<string>();
+		var strHostName = System.Net.Dns.GetHostName();
+		var ipEntry = System.Net.Dns.GetHostEntry(strHostName);
+		var addrs = ipEntry.AddressList;
+		if(addrs.Length < 3)
+		{
+			return "127.0.0.1"; 
+		}
+		for (int i = 0, length = addrs.Length; i < length; i++)
+		{
+			ss.Add(addrs[i].ToString());
+		}
+		return ss[addrs.Length - 3];
+	}
+}
